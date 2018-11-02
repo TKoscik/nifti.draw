@@ -1,8 +1,4 @@
 slices.to.raster <- function(in.array, n.row, n.col, orientation) {
-  #-------------------------------------------------------------------------------------
-  # Copyright (C) 2017 Koscik, Timothy R. All Rights Reserved
-  #-------------------------------------------------------------------------------------
-  
   slice.count <- 0
   out.mx <- numeric()
   for (i in 1:n.row) {

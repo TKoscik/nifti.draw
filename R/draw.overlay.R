@@ -6,10 +6,7 @@ draw.overlay <- function(anat.nii,
                          idx.slice=TRUE, cbars=TRUE,
                          save.dir, file.name,
                          img.format="png", img.w=NULL, img.unit="cm", img.dpi=600,
-                         save.plot=TRUE, return.plot=FALSE) {
-  #-------------------------------------------------------------------------------------
-  # Copyright (C) 2017 Koscik, Timothy R. All Rights Reserved
-  #-------------------------------------------------------------------------------------
+                         save.plot=FALSE, return.plot=TRUE) {
 
   n.check <- c(length(over.nii), length(over.color), length(mask.nii))
   n.overlays <- max(n.check)
