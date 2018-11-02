@@ -106,9 +106,9 @@ draw.3plane <- function(anat.nii,
                    `2`=img.anat[ , coords[3], ],
                    `3`=img.anat[ , , coords[3]])
 
-  if (dim(slice1)[1] != min(dim(slice1))) { slice1 <- t(slice1) }
-  if (dim(slice2)[1] != dim(slice1)[1]) { slice2 <- t(slice2) }
-  if (dim(slice3)[1] != dim(slice1)[1]) { slice3 <- t(slice3) }
+  if (dim(slice1)[1] != min(dim(slice1))) { slice1 <- rotate(slice1) }
+  if (dim(slice2)[1] != dim(slice1)[1]) { slice2 <- rotate(slice2) }
+  if (dim(slice3)[1] != dim(slice1)[1]) { slice3 <- rotate(slice3) }
 
   slice1 <- switch(as.character(slice.rot90[1]),
                    `0`=slice1, `1`=rotate(slice1), `2`=rotate(slice1), `3`=rotate(slice1))
@@ -116,6 +116,11 @@ draw.3plane <- function(anat.nii,
                    `0`=slice2, `1`=rotate(slice2), `2`=rotate(slice2), `3`=rotate(slice2))
   slice3 <- switch(as.character(slice.rot90[3]),
                    `0`=slice3, `1`=rotate(slice3), `2`=rotate(slice3), `3`=rotate(slice3))
+
+  ## slice L R gets swapped somehow
+  slice2 <- slice2[ , seq(ncol(slice2), 1, -1)]
+  slice3 <- slice3[seq(nrow(slice3), 1, -1), ]
+
   anat.raster <- melt(cbind(slice1, slice2, slice3))
 
 # MNI Labels --------------------------------------------------------------------
@@ -170,9 +175,9 @@ draw.3plane <- function(anat.nii,
     slice2 <- slice2 * mask2
     slice3 <- slice3 * mask3
 
-    if (dim(slice1)[1] != min(dim(slice1))) { slice1 <- t(slice1) }
-    if (dim(slice2)[1] != dim(slice1)[1]) { slice2 <- t(slice2) }
-    if (dim(slice3)[1] != dim(slice1)[1]) { slice3 <- t(slice3) }
+    if (dim(slice1)[1] != min(dim(slice1))) { slice1 <- rotate(slice1) }
+    if (dim(slice2)[1] != dim(slice1)[1]) { slice2 <- rotate(slice2) }
+    if (dim(slice3)[1] != dim(slice1)[1]) { slice3 <- rotate(slice3) }
 
     slice1 <- switch(as.character(slice.rot90[1]),
                      `0`=slice1, `1`=rotate(slice1), `2`=rotate(slice1), `3`=rotate(slice1))
@@ -180,6 +185,10 @@ draw.3plane <- function(anat.nii,
                      `0`=slice2, `1`=rotate(slice2), `2`=rotate(slice2), `3`=rotate(slice2))
     slice3 <- switch(as.character(slice.rot90[3]),
                      `0`=slice3, `1`=rotate(slice3), `2`=rotate(slice3), `3`=rotate(slice3))
+    ## slice L R gets swapped somehow
+    slice2 <- slice2[ , seq(ncol(slice2), 1, -1)]
+    slice3 <- slice3[seq(nrow(slice3), 1, -1), ]
+
     over.raster[[i]] <- melt(cbind(slice1, slice2, slice3))
   }
 
