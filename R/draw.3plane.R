@@ -5,8 +5,34 @@ draw.3plane <- function(anat.nii,
                         over.nii, over.vol, over.color,
                         mask.nii, mask.vol,
                         save.dir, file.name,
-                        img.format="png", img.w=NULL, img.unit="cm", img.dpi=600,
+                        img.format="pdf", img.w=8.5, img.unit="cm", img.dpi=600,
                         save.plot=TRUE, return.plot=FALSE) {
+# # debug
+# rm(list=ls())
+# gc()
+# library(nifti.io)
+# library(reshape2)
+# library(ggplot2)
+# library(viridis)
+# anat.nii <- "/rdss/koscikt/brains/MNI152_T1_2mm_brain.nii"
+# coords = c(52,66,35)
+# slice.order <- c(1,2,3)
+# slice.rot90 = c(0,1,0)
+# over.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii",
+# "/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii")
+# over.vol <- c(2,2)
+# over.color <- list(viridis(10, begin=0.25, end=1, option="plasma"),
+# viridis(10, begin=0.25, end=1, direction=-1))
+# mask.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.pos.anat.1vol.nii",
+# "/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.neg.anat.1vol.nii")
+# mask.vol <- c(1,1)
+# save.dir <- "/raid0/homes/koscikt/scratch"
+# file.name = "test"
+# img.format="pdf"
+# img.w=11.6
+# img.unit="cm"
+# img.dpi=600
+
 
   rotate <- function(x) t(apply(x, 2, rev))
 #
@@ -101,7 +127,15 @@ draw.3plane <- function(anat.nii,
                            labels = mni.coords)
 
 # set text height -------
-  label.height <- round(dim(slice1)[1] * 0.05)
+  full.width <- dim(slice1)[2] + dim(slice2)[2] + dim(slice3)[2]
+  full.height <- dim(slice1)[1] + n.overlays * 2 * round(dim(slice1)[1] * 0.05)
+  wh.ratio <- full.width/full.height
+  img.h <- img.w / wh.ratio
+  label.pos <- round(dim(slice1)[1] * 0.05)
+  label.height <- round(img.h) * 0.05
+  label.height <- switch(img.unit,
+                         `cm`=label.height*10,
+                         `in`=label.height*25.4)
 
 # Overlay Slices ---------------------------------------------------------------
   over.raster <- vector("list", n.overlays)
@@ -216,7 +250,7 @@ draw.3plane <- function(anat.nii,
 # color bar labels
   cbar.labels <- data.frame(x=c(rep(mni.labels$xvar[1], n.overlays),
                                 rep(mni.labels$xvar[3], n.overlays)),
-                            y=seq(-label.height,n.overlays*(-(label.height*2)), -(label.height*2)),
+                            y=seq(-label.pos,n.overlays*(-(label.pos*2)), -(label.pos*2)),
                             labels=numeric(n.overlays))
   for (i in 1:n.overlays) {
     cbar.labels$labels[i] <- round(min(over.raster[[i]]$value, na.rm=TRUE), digits=3)
@@ -235,29 +269,15 @@ draw.3plane <- function(anat.nii,
     plot.img <- plot.img +
       annotation_raster(cbar.raster[[i]],
                         mni.labels$xvar[1]+1, mni.labels$xvar[3]-1,
-                        ((2*label.height*(i-1))+(label.height/2))*(-1),
-                        ((2*label.height*(i-1))+(3*label.height/2))*(-1))
-  }
-  plot.img
-
-  lay <- matrix(1:(length(plot.cbar)+1), ncol=1)
-  plot.ls <- paste(c("plot.img", sprintf(", plot.cbar[[%0.0f]]",1:n.overlays)), collapse="")
-  plot.all <- eval(parse(text=sprintf("arrangeGrob(%s, layout_matrix=lay)",plot.ls)))
-
-  grid.arrange(plot.all)
-
-  if (is.null(img.w)) {
-    img.w <- (n.col+1)*2
-    img.h <- (n.row)*2
-  } else {
-    img.h <- (n.row * img.w)/(n.col + 1)
+                        ((2*label.pos*(i-1))+(label.pos/2))*(-1),
+                        ((2*label.pos*(i-1))+(3*label.pos/2))*(-1))
   }
 
   if (save.plot) {
     ggsave(filename=paste0(save.dir, "/", file.name, ".", img.format),
-           plot.all,
+           plot.img,
            width=img.w, height=img.h, unit=img.unit, dpi=img.dpi)
   }
-  if (return.plot) { return(plot.all) }
+  if (return.plot) { return(plot.img) }
 
 }
