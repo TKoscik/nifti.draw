@@ -8,30 +8,30 @@ draw.3plane <- function(anat.nii,
                         img.format="pdf", img.w=8.5, img.unit="cm", img.dpi=600,
                         save.plot=TRUE, return.plot=FALSE) {
 # # debug
-rm(list=ls())
-gc()
-library(nifti.io)
-library(reshape2)
-library(ggplot2)
-library(viridis)
-anat.nii <- "/rdss/koscikt/brains/MNI152_T1_2mm_brain.nii"
-coords = c(52,66,35)
-slice.order <- c(1,2,3)
-slice.rot90 = c(0,1,0)
-over.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii",
-"/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii")
-over.vol <- c(2,2)
-over.color <- list(viridis(10, begin=0.25, end=1, option="plasma"),
-viridis(10, begin=0.25, end=1, direction=-1))
-mask.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.pos.anat.1vol.nii",
-"/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.neg.anat.1vol.nii")
-mask.vol <- c(1,1)
-save.dir <- "/raid0/homes/koscikt/scratch"
-file.name = "test"
-img.format="pdf"
-img.w=11.6
-img.unit="cm"
-img.dpi=600
+# rm(list=ls())
+# gc()
+# library(nifti.io)
+# library(reshape2)
+# library(ggplot2)
+# library(viridis)
+# anat.nii <- "/rdss/koscikt/brains/MNI152_T1_2mm_brain.nii"
+# coords = c(52,66,35)
+# slice.order <- c(1,2,3)
+# slice.rot90 = c(0,1,0)
+# over.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii",
+# "/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii")
+# over.vol <- c(2,2)
+# over.color <- list(viridis(10, begin=0.25, end=1, option="plasma"),
+# viridis(10, begin=0.25, end=1, direction=-1))
+# mask.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.pos.anat.1vol.nii",
+# "/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.neg.anat.1vol.nii")
+# mask.vol <- c(1,1)
+# save.dir <- "/raid0/homes/koscikt/scratch"
+# file.name = "test"
+# img.format="pdf"
+# img.w=11.6
+# img.unit="cm"
+# img.dpi=600
 
 
   rotate <- function(x) t(apply(x, 2, rev))
