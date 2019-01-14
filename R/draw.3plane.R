@@ -1,40 +1,13 @@
 draw.3plane <- function(anat.nii,
-                        anat.mask.nii, anat.mask.vol,
                         coords,
                         slice.order=c(1,2,3),
                         slice.rot90 = c(0,1,0),
                         over.nii, over.vol, over.color,
-                        over.mask.nii, over.mask.vol,
+                        mask.nii, mask.vol,
                         save.dir, file.name,
                         img.format="pdf", img.w=8.5, img.unit="cm", img.dpi=600,
                         label.size=1,
                         save.plot=TRUE, return.plot=FALSE) {
-# # debug
-# rm(list=ls())
-# gc()
-# library(nifti.io)
-# library(reshape2)
-# library(ggplot2)
-# library(viridis)
-# anat.nii <- "/rdss/koscikt/brains/MNI152_T1_2mm_brain.nii"
-# coords = c(52,66,35)
-# slice.order <- c(1,2,3)
-# slice.rot90 = c(0,1,0)
-# over.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii",
-# "/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/duplex.mdl1.coef.tvalue.nii")
-# over.vol <- c(2,2)
-# over.color <- list(viridis(10, begin=0.25, end=1, option="plasma"),
-# viridis(10, begin=0.25, end=1, direction=-1))
-# mask.nii <- c("/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.pos.anat.1vol.nii",
-# "/rdss/koscikt/projects/duplex_gamble/analyses/20170613_outcome/cluster_outcome_gain.neg.anat.1vol.nii")
-# mask.vol <- c(1,1)
-# save.dir <- "/raid0/homes/koscikt/scratch"
-# file.name = "test"
-# img.format="pdf"
-# img.w=11.6
-# img.unit="cm"
-# img.dpi=600
-
 
   rotate <- function(x) t(apply(x, 2, rev))
 #
@@ -53,20 +26,12 @@ draw.3plane <- function(anat.nii,
       for (i in 1:n.overlays) { over.color[[i]] <- temp }
     }
     if (n.check[3] != n.overlays) {
-      temp <- anat.mask.nii
-      anat.mask.nii <- vector("list", n.overlays)
-      for (i in 1:n.overlays) { anat.mask.nii[[i]] <- temp }
-      temp <- anat.mask.vol
-      anat.mask.vol <- vector("list", n.overlays)
-      for (i in 1:n.overlays) { anat.mask.vol[[i]] <- temp }
-    }
-    if (n.check[4] != n.overlays) {
-      temp <- over.mask.nii
-      over.mask.nii <- vector("list", n.overlays)
-      for (i in 1:n.overlays) { over.mask.nii[[i]] <- temp }
-      temp <- over.mask.vol
-      over.mask.vol <- vector("list", n.overlays)
-      for (i in 1:n.overlays) { over.mask.vol[[i]] <- temp }
+      temp <- mask.nii
+      mask.nii <- vector("list", n.overlays)
+      for (i in 1:n.overlays) { mask.nii[[i]] <- temp }
+      temp <- mask.vol
+      mask.vol <- vector("list", n.overlays)
+      for (i in 1:n.overlays) { mask.vol[[i]] <- temp }
     }
   }
 
@@ -82,44 +47,24 @@ draw.3plane <- function(anat.nii,
   for (i in 1:n.overlays) { img.over[[i]] <- read.nii.volume(over.nii[[i]], over.vol[i]) }
 
   # Load masks ----
-  anat.img.mask <- vector("list", length=n.overlays)
+  img.mask <- vector("list", length=n.overlays)
   for (i in 1:n.overlays) {
-    if (anat.mask.nii[[i]] == "none") {
-      anat.img.mask[[i]] <- array(as.numeric(img.over[[i]] != 0), dim=dim(img.anat))
+    if (mask.nii[[i]] == "none") {
+      img.mask[[i]] <- array(as.numeric(img.over[[i]] != 0), dim=dim(img.anat))
     } else {
-      if (anat.mask.vol[[i]] == "all") {
-        mask.vols <- 1:(nii.dims(anat.mask.nii[[i]])[4])
-      } else if (is.numeric(anat.mask.vol[[i]])) {
-        mask.vols <- anat.mask.vol[[i]]
+      if (mask.vol[[i]] == "all") {
+        mask.vols <- 1:(nii.dims(mask.nii[[i]])[4])
+      } else if (is.numeric(mask.vol[[i]])) {
+        mask.vols <- mask.vol[[i]]
       } else { stop("Cannot parse mask volumes") }
 
-      anat.img.mask[[i]] <- array(0, dim=dim(img.anat))
+      img.mask[[i]] <- array(0, dim=dim(img.anat))
       for (j in mask.vols) {
-        anat.img.mask[[i]] <- anat.img.mask[[i]] + read.nii.volume(anat.mask.nii[[i]], j)
+        img.mask[[i]] <- img.mask[[i]] + read.nii.volume(mask.nii[[i]], j)
       }
-      anat.img.mask[[i]][anat.img.mask[[i]]>1] <- 1
+      img.mask[[i]][img.mask[[i]]>1] <- 1
     }
-    img.over[[i]][anat.img.mask[[i]]==0] <- NA
-  }
-  
-  over.img.mask <- vector("list", length=n.overlays)
-  for (i in 1:n.overlays) {
-    if (over.mask.nii[[i]] == "none") {
-      over.img.mask[[i]] <- array(as.numeric(over.img.over[[i]] != 0), dim=dim(img.anat))
-    } else {
-      if (over.mask.vol[[i]] == "all") {
-        mask.vols <- 1:(nii.dims(over.mask.nii[[i]])[4])
-      } else if (is.numeric(over.mask.vol[[i]])) {
-        mask.vols <- over.mask.vol[[i]]
-      } else { stop("Cannot parse mask volumes") }
-
-      over.img.mask[[i]] <- array(0, dim=dim(img.anat))
-      for (j in mask.vols) {
-        over.img.mask[[i]] <- over.img.mask[[i]] + read.nii.volume(over.mask.nii[[i]], j)
-      }
-      over.img.mask[[i]][over.img.mask[[i]]>1] <- 1
-    }
-    img.over[[i]][over.img.mask[[i]]==0] <- NA
+    img.over[[i]][img.mask[[i]]==0] <- NA
   }
 
 # Anatomical Slices ------------------------------------------------------------
@@ -135,23 +80,6 @@ draw.3plane <- function(anat.nii,
                    `1`=img.anat[coords[3], , ],
                    `2`=img.anat[ , coords[3], ],
                    `3`=img.anat[ , , coords[3]])
-  
-  mask1 <- switch(as.character(slice.order[1]),
-                     `1`=anat.img.mask[[i]][coords[1], , ],
-                     `2`=anat.img.mask[[i]][ , coords[1], ],
-                     `3`=anat.img.mask[[i]][ , , coords[1]])
-    mask2 <- switch(as.character(slice.order[2]),
-                     `1`=anat.img.mask[[i]][coords[2], , ],
-                     `2`=anat.img.mask[[i]][ , coords[2], ],
-                     `3`=anat.img.mask[[i]][ , , coords[2]])
-    mask3 <- switch(as.character(slice.order[3]),
-                     `1`=anat.img.mask[[i]][coords[3], , ],
-                     `2`=anat.img.mask[[i]][ , coords[3], ],
-                     `3`=anat.img.mask[[i]][ , , coords[3]])
-
-    slice1 <- slice1 * mask1
-    slice2 <- slice2 * mask2
-    slice3 <- slice3 * mask3
 
   if (dim(slice1)[1] != min(dim(slice1))) { slice1 <- rotate(slice1) }
   if (dim(slice2)[1] != dim(slice1)[1]) { slice2 <- rotate(slice2) }
@@ -207,17 +135,17 @@ draw.3plane <- function(anat.nii,
                      `3`=img.over[[i]][ , , coords[3]])
 
     mask1 <- switch(as.character(slice.order[1]),
-                     `1`=over.img.mask[[i]][coords[1], , ],
-                     `2`=over.img.mask[[i]][ , coords[1], ],
-                     `3`=over.img.mask[[i]][ , , coords[1]])
+                     `1`=img.mask[[i]][coords[1], , ],
+                     `2`=img.mask[[i]][ , coords[1], ],
+                     `3`=img.mask[[i]][ , , coords[1]])
     mask2 <- switch(as.character(slice.order[2]),
-                     `1`=over.img.mask[[i]][coords[2], , ],
-                     `2`=over.img.mask[[i]][ , coords[2], ],
-                     `3`=over.img.mask[[i]][ , , coords[2]])
+                     `1`=img.mask[[i]][coords[2], , ],
+                     `2`=img.mask[[i]][ , coords[2], ],
+                     `3`=img.mask[[i]][ , , coords[2]])
     mask3 <- switch(as.character(slice.order[3]),
-                     `1`=over.img.mask[[i]][coords[3], , ],
-                     `2`=over.img.mask[[i]][ , coords[3], ],
-                     `3`=over.img.mask[[i]][ , , coords[3]])
+                     `1`=img.mask[[i]][coords[3], , ],
+                     `2`=img.mask[[i]][ , coords[3], ],
+                     `3`=img.mask[[i]][ , , coords[3]])
 
     slice1 <- slice1 * mask1
     slice2 <- slice2 * mask2
