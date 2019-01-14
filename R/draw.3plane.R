@@ -111,11 +111,11 @@ draw.3plane <- function(anat.nii,
   if (dim(slice3)[1] != dim(slice1)[1]) { slice3 <- rotate(slice3) }
 
   slice1 <- switch(as.character(slice.rot90[1]),
-                   `0`=slice1, `1`=rotate(slice1), `2`=rotate(slice1), `3`=rotate(slice1))
+                   `0`=slice1, `1`=rotate(slice1), `2`=rotate(rotate(slice1)), `3`=rotate(rotate(rotate(slice1))))
   slice2 <- switch(as.character(slice.rot90[2]),
-                   `0`=slice2, `1`=rotate(slice2), `2`=rotate(slice2), `3`=rotate(slice2))
+                   `0`=slice2, `1`=rotate(slice2), `2`=rotate(rotate(slice2)), `3`=rotate(rotate(rotate(slice2))))
   slice3 <- switch(as.character(slice.rot90[3]),
-                   `0`=slice3, `1`=rotate(slice3), `2`=rotate(slice3), `3`=rotate(slice3))
+                   `0`=slice3, `1`=rotate(slice3), `2`=rotate(rotate(slice3)), `3`=rotate(rotate(rotate(slice3))))
 
   ## slice L R gets swapped somehow
   slice2 <- slice2[ , seq(ncol(slice2), 1, -1)]
