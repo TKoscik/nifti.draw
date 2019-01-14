@@ -38,7 +38,7 @@ draw.3plane <- function(anat.nii,
 
   rotate <- function(x) t(apply(x, 2, rev))
 #
-  n.check <- c(length(over.nii), length(over.color), length(mask.nii))
+  n.check <- c(length(over.nii), length(over.color), length(anat.mask.nii), length(over.mask.nii))
   n.overlays <- max(n.check)
   if (!all(n.check == n.overlays)) {
     if (n.check[1] != n.overlays) {
@@ -53,12 +53,20 @@ draw.3plane <- function(anat.nii,
       for (i in 1:n.overlays) { over.color[[i]] <- temp }
     }
     if (n.check[3] != n.overlays) {
-      temp <- mask.nii
-      mask.nii <- vector("list", n.overlays)
-      for (i in 1:n.overlays) { mask.nii[[i]] <- temp }
-      temp <- mask.vol
-      mask.vol <- vector("list", n.overlays)
-      for (i in 1:n.overlays) { mask.vol[[i]] <- temp }
+      temp <- anat.mask.nii
+      anat.mask.nii <- vector("list", n.overlays)
+      for (i in 1:n.overlays) { anat.mask.nii[[i]] <- temp }
+      temp <- anat.mask.vol
+      anat.mask.vol <- vector("list", n.overlays)
+      for (i in 1:n.overlays) { anat.mask.vol[[i]] <- temp }
+    }
+    if (n.check[4] != n.overlays) {
+      temp <- over.mask.nii
+      over.mask.nii <- vector("list", n.overlays)
+      for (i in 1:n.overlays) { over.mask.nii[[i]] <- temp }
+      temp <- over.mask.vol
+      over.mask.vol <- vector("list", n.overlays)
+      for (i in 1:n.overlays) { over.mask.vol[[i]] <- temp }
     }
   }
 
