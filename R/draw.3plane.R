@@ -11,7 +11,7 @@ draw.3plane <- function(anat.nii,
 
   rotate <- function(x) t(apply(x, 2, rev))
 #
-  n.check <- c(length(over.nii), length(over.color), length(anat.mask.nii), length(over.mask.nii))
+  n.check <- c(length(over.nii), length(over.color), length(mask.nii))
   n.overlays <- max(n.check)
   if (!all(n.check == n.overlays)) {
     if (n.check[1] != n.overlays) {
