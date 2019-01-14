@@ -138,7 +138,7 @@ draw.3plane <- function(anat.nii,
   wh.ratio <- full.width/full.height
   img.h <- img.w / wh.ratio
   label.pos <- round(dim(slice1)[1] * 0.05)
-  label.height <- round(img.h) * 0.05 * label.height
+  label.height <- round(img.h) * 0.05 * label.size
   label.height <- switch(img.unit,
                          `cm`=label.height*10,
                          `in`=label.height*25.4)
