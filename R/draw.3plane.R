@@ -6,6 +6,7 @@ draw.3plane <- function(anat.nii,
                         mask.nii, mask.vol,
                         save.dir, file.name,
                         img.format="pdf", img.w=8.5, img.unit="cm", img.dpi=600,
+                        label.size=1,
                         save.plot=TRUE, return.plot=FALSE) {
 # # debug
 # rm(list=ls())
@@ -125,11 +126,11 @@ draw.3plane <- function(anat.nii,
 
 # MNI Labels --------------------------------------------------------------------
   mni.coords <- world.to.mni(matrix(coords,ncol=3), nii.file=anat.nii)
-  mni.labels <- data.frame(xvar = c(dim(slice1)[2]/2,
+  mni.labels <- round(data.frame(xvar = c(dim(slice1)[2]/2,
                                     dim(slice1)[2] + dim(slice2)[2]/2,
                                     dim(slice1)[2] + dim(slice2)[2] + dim(slice3)[2]/2),
                            yvar = rep(dim(slice1)[1], 3),
-                           labels = mni.coords)
+                           labels = mni.coords), 1)
 
 # set text height -------
   full.width <- dim(slice1)[2] + dim(slice2)[2] + dim(slice3)[2]
@@ -137,7 +138,7 @@ draw.3plane <- function(anat.nii,
   wh.ratio <- full.width/full.height
   img.h <- img.w / wh.ratio
   label.pos <- round(dim(slice1)[1] * 0.05)
-  label.height <- round(img.h) * 0.05
+  label.height <- round(img.h) * 0.05 * label.height
   label.height <- switch(img.unit,
                          `cm`=label.height*10,
                          `in`=label.height*25.4)
