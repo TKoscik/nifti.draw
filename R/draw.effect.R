@@ -5,29 +5,7 @@ draw.effect <- function(model,
                         save.dir, file.name,
                         img.format="png", img.w=10, img.unit="cm", img.dpi=600,
                         save.plot=TRUE, return.plot=FALSE) {
-  #-------------------------------------------------------------------------------------
-  # Copyright (C) 2017 Koscik, Timothy R. All Rights Reserved
-  #-------------------------------------------------------------------------------------
-
-  # Debug ---
-  # rm(list=ls())
-  # gc()
-  #
-  # axes=NULL
-  # labels=NULL
-  # plot.colors=get.color()
-  # save.plot=FALSE
-  # return.plot=TRUE
-  # effect.name="condA:condB"
-  #
-  # dat <- read.csv("C:/Users/tim.koscik/Downloads/fakeData.csv")
-  # dat$condA <- as.factor(dat$condA)
-  # dat$condB <- as.factor(dat$condB)
-  # dat$run <- rep(c(1,1,2,2),10)
-  # dat$response = sample(c(rep(0,20), rep(1,20)), size = 40, replace=F)
-  # model <- lmer(score ~ condA * condB + (1|subject/run), dat)
-  # model <- glmer(response ~ score * condA + (1|subject/run), dat, family=binomial, nAGQ=1, control=glmerControl(calc.derivs=FALSE, optimizer="bobyqa", optCtrl=list(maxfun=1000000)))
-  # ----
+  
   if (is.null(plot.colors)) {
     plot.colors <- colorRampPallete(c("#440154FF", "#3B528BFF", "#21908CFF", "#5DC863FF", "#FDE725FF", "#FDC328FF", "#F89441FF", "#E56B5DFF", "#CC4678FF"))
   }
@@ -140,7 +118,7 @@ draw.effect <- function(model,
     colnames(ef)[which.column] <- labels[5]
   }
   
-  plot.colors <- plot.colors(length(unique(ef[axes[3]]))
+  #plot.colors <- plot.colors(length(unique(ef[axes[3]])))
                              
   if (var.type[1]=="factor") {
     plot.str <- switch(as.character(ef.num),
