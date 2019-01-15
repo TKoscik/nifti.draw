@@ -118,7 +118,7 @@ draw.effect <- function(model,
     colnames(ef)[which.column] <- labels[5]
   }
   
-  #plot.colors <- plot.colors(length(unique(ef[axes[3]])))
+  plot.colors <- plot.colors(length(unique(ef[axes[3]])))
                              
   if (var.type[1]=="factor") {
     plot.str <- switch(as.character(ef.num),
