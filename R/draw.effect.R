@@ -1,7 +1,7 @@
 draw.effect <- function(model,
                         effect.name,
                         axes=NULL, labels=NULL,
-                        plot.colors=get.color(),
+                        plot.colors=NULL,
                         save.dir, file.name,
                         img.format="png", img.w=10, img.unit="cm", img.dpi=600,
                         save.plot=TRUE, return.plot=FALSE) {
@@ -28,7 +28,10 @@ draw.effect <- function(model,
   # model <- lmer(score ~ condA * condB + (1|subject/run), dat)
   # model <- glmer(response ~ score * condA + (1|subject/run), dat, family=binomial, nAGQ=1, control=glmerControl(calc.derivs=FALSE, optimizer="bobyqa", optCtrl=list(maxfun=1000000)))
   # ----
-
+  if (is.null(plot.colors)) {
+    plot.colors <- colorRampPallete(c("#440154FF", "#3B528BFF", "#21908CFF", "#5DC863FF", "#FDE725FF", "#FDC328FF", "#F89441FF", "#E56B5DFF", "#CC4678FF"))
+  }
+  
   if (class(model) == "merModLmerTest") {
     tempf <<- model@frame
     dv <- unlist(strsplit(as.character(model@call), split = "[ ~]"))[2]
@@ -136,7 +139,9 @@ draw.effect <- function(model,
     which.column <- which(colnames(ef)==axes[5])
     colnames(ef)[which.column] <- labels[5]
   }
-
+  
+  plot.colors <- plot.colors(length(unique(ef[axes[3]]))
+                             
   if (var.type[1]=="factor") {
     plot.str <- switch(as.character(ef.num),
       `1`=sprintf("ggplot(ef, aes(x=%s, y=%s, ymin=lower, ymax=upper)) + theme_bw() + geom_pointrange(size=1, shape=18) + xlab('%s') + ylab('%s') + theme(axis.title=element_text(size=14), axis.text=element_text(size=12), axis.text.x=element_text(angle=90, hjust=0, vjust=0.5), legend.position='bottom', legend.title=element_text(size=14), legend.text=element_text(size=12))", axes[1], axes[2], labels[1], labels[2]),
