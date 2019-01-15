@@ -52,8 +52,7 @@ draw.effect <- function(model,
   }
 
   # Get effect levels if not supplied by user ----
-  # if (is.null(effect.levels)) {
-    effect.levels <- numeric(ef.num)
+  effect.levels <- numeric(ef.num)
     for (i in 1:ef.num) {
       if (i == 1) {
         if (var.type[i]=="factor") {
@@ -72,8 +71,7 @@ draw.effect <- function(model,
           }
         } else { stop("Cannot parse variable class") }
       }
-    }
-  # }
+  }
 
   ef.str <- switch(as.character(ef.num),
     `1`=sprintf("%s%s=%0.0f%s",
@@ -94,14 +92,8 @@ draw.effect <- function(model,
                ef.vars[2], effect.levels[2],
                ef.vars[3], effect.levels[3],
                ef.vars[4], effect.levels[4], ")))"))
-  # model <- update(model, data=tempf)
   ef <- eval(parse(text=ef.str))
 
-  # for (i in 1:ncol(ef)) {
-  #   if (is.numeric(ef[ ,i])) {
-  #     ef[ ,i] <- signif(ef[ ,i], digits=3)
-  #   }
-  # }
   if (length(axes) > 2) {
     if (var.type[axes[3]]=="numeric") {
       ef[axes[3]] <- signif(ef[axes[3]], digits=3)
@@ -118,9 +110,7 @@ draw.effect <- function(model,
     colnames(ef)[which.column] <- labels[5]
   }
   
-  print(ef[axes[3]])
-  
-  plot.colors <- plot.colors(length(unique(ef[axes[3]])))
+  plot.colors <- plot.colors(length(unlist(unique(ef[axes[3]]))))
                              
   if (var.type[1]=="factor") {
     plot.str <- switch(as.character(ef.num),
