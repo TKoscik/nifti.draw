@@ -7,7 +7,7 @@ draw.effect <- function(model,
                         save.plot=TRUE, return.plot=FALSE) {
   
   if (is.null(plot.colors)) {
-    plot.colors <- colorRampPallete(c("#440154FF", "#3B528BFF", "#21908CFF", "#5DC863FF", "#FDE725FF", "#FDC328FF", "#F89441FF", "#E56B5DFF", "#CC4678FF"))
+    plot.colors <- colorRampPalette(c("#440154FF", "#3B528BFF", "#21908CFF", "#5DC863FF", "#FDE725FF", "#FDC328FF", "#F89441FF", "#E56B5DFF", "#CC4678FF"))
   }
   
   if (class(model) == "merModLmerTest") {
