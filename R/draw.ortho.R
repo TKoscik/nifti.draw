@@ -1,4 +1,4 @@
-draw.ortho <- function(coords, 
+draw.ortho <- function(coords,
                        bg.nii,
                        bg.vol,
                        bg.mask=NULL,
@@ -14,9 +14,12 @@ draw.ortho <- function(coords,
                        fg.color=c("#440154", "#3C4984", "#26828B", "#49B570", "#B5D940",
                                   "#FDD626", "#FBB330", "#F38A47", "#E2665F", "#CC4678"),
                        fg.alpha=1,
+                       roi.nii,
+                       roi.vol,
+                       roi.color="#ff00ff",
                        save.plot=F, save.dir, file.name,
                        img.format="png", img.w=17.6, img.unit="cm", img.dpi=600) {
-  
+
   hdr <- nii.hdr(bg.nii)
   if (hdr$qform_code %in% c(1,-1)) {
     mm.coords <- world.to.mni(matrix(coords,ncol=3),
@@ -28,122 +31,12 @@ draw.ortho <- function(coords,
     mm.coords <- world.to.mni(matrix(coords,ncol=3),
                               nii.file = bg.nii)
   }
-  
+
   img.dims <- nii.dims(bg.nii)[1:3]
   rel.dims <- img.dims / max(img.dims)
   rel.dims <- rel.dims[c(2,1,1)]
-  
-  # Prep Background
-  nii.bg <- read.nii.volume(bg.nii, bg.vol)
-  mask.bg <- read.nii.volume(bg.mask, bg.mask.vol)
-  
-  x.mask <- mask.bg[coords[1], , ]
-  x.mask[x.mask==0] <- NA
-  x.mask[!is.na(x.mask)] <- 1
-  x.bg <- melt(nii.bg[coords[1], , ] * x.mask)
-  y.mask <- mask.bg[ , coords[2], ]
-  y.mask[y.mask==0] <- NA
-  y.mask[!is.na(y.mask)] <- 1
-  y.bg <- melt(nii.bg[ , coords[2], ] * y.mask)
-  z.mask <- mask.bg[ , , coords[3]]
-  z.mask[z.mask==0] <- NA
-  z.mask[!is.na(z.mask)] <- 1
-  z.bg <- melt(nii.bg[ , , coords[3]] * z.mask)
-  bg.all.vals <-c(x.bg$value, y.bg$value, z.bg$value)
-  min.bg <- quantile(bg.all.vals, bg.range[1], na.rm=T)
-  max.bg <- quantile(bg.all.vals, bg.range[2], na.rm=T)
-  
-  x.bg$scaled <- ((x.bg$value - min.bg)/(max.bg - min.bg)) * (diff(bg.range))
-  x.bg$scaled[x.bg$scaled < 0] <- 0
-  x.bg$scaled[x.bg$scaled > 1] <- 1
-  temp.color <- cbind(colorRamp(bg.color)(x.bg$scaled),NA)
-  temp.color[!is.na(x.bg$scaled),4] <- 255 * bg.alpha
-  temp.color[is.na(x.bg$scaled), ] <- 0
-  x.bg$color=rgb(red = temp.color[ ,1],
-                 green = temp.color[ ,2],
-                 blue = temp.color[ ,3],
-                 alpha = temp.color[ ,4],
-                 maxColorValue = 255, )
-  
-  y.bg$scaled <- (y.bg$value - min.bg)/(max.bg - min.bg)
-  y.bg$scaled[y.bg$scaled < 0] <- 0
-  y.bg$scaled[y.bg$scaled > 1] <- 1
-  temp.color <- cbind(colorRamp(bg.color)(y.bg$scaled),NA)
-  temp.color[!is.na(y.bg$scaled),4] <- 255 * bg.alpha
-  temp.color[is.na(y.bg$scaled), ] <- 0
-  y.bg$color=rgb(red = temp.color[ ,1],
-                 green = temp.color[ ,2],
-                 blue = temp.color[ ,3],
-                 alpha = temp.color[ ,4],
-                 maxColorValue = 255, )
-  
-  z.bg$scaled <- (z.bg$value - min.bg)/(max.bg - min.bg)
-  z.bg$scaled[z.bg$scaled < 0] <- 0
-  z.bg$scaled[z.bg$scaled > 1] <- 1
-  temp.color <- cbind(colorRamp(bg.color)(z.bg$scaled),NA)
-  temp.color[!is.na(z.bg$scaled),4] <- 255 * bg.alpha
-  temp.color[is.na(z.bg$scaled), ] <- 0
-  z.bg$color=rgb(red = temp.color[ ,1],
-                 green = temp.color[ ,2],
-                 blue = temp.color[ ,3],
-                 alpha = temp.color[ ,4],
-                 maxColorValue = 255, )
-  
-  # Prep Foreground
-  nii.fg <- read.nii.volume(fg.nii, fg.vol)
-  mask.fg <- read.nii.volume(fg.mask, fg.mask.vol)
-  
-  x.mask <- mask.fg[coords[1], , ]
-  x.mask[x.mask==0] <- NA
-  x.mask[!is.na(x.mask)] <- 1
-  x.fg <- melt(nii.fg[coords[1], , ] * x.mask)
-  y.mask <- mask.fg[ , coords[2], ]
-  y.mask[y.mask==0] <- NA
-  y.mask[!is.na(y.mask)] <- 1
-  y.fg <- melt(nii.fg[ , coords[2], ] * y.mask)
-  z.mask <- mask.fg[ , , coords[3]]
-  z.mask[z.mask==0] <- NA
-  z.mask[!is.na(z.mask)] <- 1
-  z.fg <- melt(nii.fg[ , , coords[3]] * z.mask)
-  all.fg.vals <- c(x.fg$value, y.fg$value, z.fg$value)
-  min.fg <- min(all.fg.vals, na.rm=T)
-  max.fg <- max(all.fg.vals, na.rm=T)
-  
-  x.fg$scaled <- (x.fg$value - min.fg)/(max.fg - min.fg)
-  temp.color <- cbind(colorRamp(fg.color)(x.fg$scaled),NA)
-  temp.color[!is.na(x.fg$scaled),4] <- 255 * fg.alpha
-  temp.color[is.na(x.fg$scaled), ] <- 0
-  x.fg$color=rgb(red = temp.color[ ,1],
-                 green = temp.color[ ,2],
-                 blue = temp.color[ ,3],
-                 alpha = temp.color[ ,4],
-                 maxColorValue = 255, )
-  
-  y.fg$scaled <- (y.fg$value - min.fg)/(max.fg - min.fg)
-  temp.color <- cbind(colorRamp(fg.color)(y.fg$scaled),NA)
-  temp.color[!is.na(y.fg$scaled),4] <- 255 * fg.alpha
-  temp.color[is.na(y.fg$scaled), ] <- 0
-  y.fg$color=rgb(red = temp.color[ ,1],
-                 green = temp.color[ ,2],
-                 blue = temp.color[ ,3],
-                 alpha = temp.color[ ,4],
-                 maxColorValue = 255, )
-  z.fg$scaled <- (z.fg$value - min.fg)/(max.fg - min.fg)
-  temp.color <- cbind(colorRamp(fg.color)(z.fg$scaled),NA)
-  temp.color[!is.na(z.fg$scaled),4] <- 255 * fg.alpha
-  temp.color[is.na(z.fg$scaled), ] <- 0
-  z.fg$color=rgb(red = temp.color[ ,1],
-                 green = temp.color[ ,2],
-                 blue = temp.color[ ,3],
-                 alpha = temp.color[ ,4],
-                 maxColorValue = 255, )
-  
-  ## Prep Foreground Legend
-  min.val <- min(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
-  max.val <- max(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
-  fg.legend <- melt(matrix(seq(min.val, max.val, length.out = 100), ncol=10, nrow=100))
-  
- ###
+
+# Set plot theme ---------------------------------------------------------------
   theme.obj <- theme(plot.title = element_blank(),
                      legend.position="none",
                      legend.title = element_blank(),
@@ -161,46 +54,202 @@ draw.ortho <- function(coords,
                      plot.margin=margin(0,0,0,0, "null"),
                      legend.margin=margin(0,0,0,0, "null"),
                      panel.spacing = margin(0,0,0,0, "null"))
-  
+
+# Prep Background --------------------------------------------------------------
+  nii.bg <- read.nii.volume(bg.nii, bg.vol)
+  if (is.null(bg.mask)) {
+    mask.bg <- array(1,dim=dim(nii.bg))
+  } else {
+    mask.bg <- read.nii.volume(bg.mask, bg.mask.vol)
+  }
+  x.mask <- mask.bg[coords[1], , ]
+  x.mask[x.mask==0] <- NA
+  x.mask[!is.na(x.mask)] <- 1
+  x.bg <- melt(nii.bg[coords[1], , ] * x.mask)
+  y.mask <- mask.bg[ , coords[2], ]
+  y.mask[y.mask==0] <- NA
+  y.mask[!is.na(y.mask)] <- 1
+  y.bg <- melt(nii.bg[ , coords[2], ] * y.mask)
+  z.mask <- mask.bg[ , , coords[3]]
+  z.mask[z.mask==0] <- NA
+  z.mask[!is.na(z.mask)] <- 1
+  z.bg <- melt(nii.bg[ , , coords[3]] * z.mask)
+  bg.all.vals <-c(x.bg$value, y.bg$value, z.bg$value)
+  min.bg <- quantile(bg.all.vals, bg.range[1], na.rm=T)
+  max.bg <- quantile(bg.all.vals, bg.range[2], na.rm=T)
+
+  x.bg$scaled <- ((x.bg$value - min.bg)/(max.bg - min.bg)) * (diff(bg.range))
+  x.bg$scaled[x.bg$scaled < 0] <- 0
+  x.bg$scaled[x.bg$scaled > 1] <- 1
+  temp.color <- cbind(colorRamp(bg.color)(x.bg$scaled),NA)
+  temp.color[!is.na(x.bg$scaled),4] <- 255 * bg.alpha
+  temp.color[is.na(x.bg$scaled), ] <- 0
+  x.bg$color=rgb(red = temp.color[ ,1],
+                 green = temp.color[ ,2],
+                 blue = temp.color[ ,3],
+                 alpha = temp.color[ ,4],
+                 maxColorValue = 255)
+
+  y.bg$scaled <- (y.bg$value - min.bg)/(max.bg - min.bg)
+  y.bg$scaled[y.bg$scaled < 0] <- 0
+  y.bg$scaled[y.bg$scaled > 1] <- 1
+  temp.color <- cbind(colorRamp(bg.color)(y.bg$scaled),NA)
+  temp.color[!is.na(y.bg$scaled),4] <- 255 * bg.alpha
+  temp.color[is.na(y.bg$scaled), ] <- 0
+  y.bg$color=rgb(red = temp.color[ ,1],
+                 green = temp.color[ ,2],
+                 blue = temp.color[ ,3],
+                 alpha = temp.color[ ,4],
+                 maxColorValue = 255)
+
+  z.bg$scaled <- (z.bg$value - min.bg)/(max.bg - min.bg)
+  z.bg$scaled[z.bg$scaled < 0] <- 0
+  z.bg$scaled[z.bg$scaled > 1] <- 1
+  temp.color <- cbind(colorRamp(bg.color)(z.bg$scaled),NA)
+  temp.color[!is.na(z.bg$scaled),4] <- 255 * bg.alpha
+  temp.color[is.na(z.bg$scaled), ] <- 0
+  z.bg$color=rgb(red = temp.color[ ,1],
+                 green = temp.color[ ,2],
+                 blue = temp.color[ ,3],
+                 alpha = temp.color[ ,4],
+                 maxColorValue = 255)
+
+# Plot background --------------------------------------------------------------
   plot.x <- ggplot() +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=x.bg, aes(x=Var1, y=Var2, fill=value), fill=x.bg$color) +
-    geom_raster(data=x.fg, aes(x=Var1, y=Var2, fill=value), fill=x.fg$color) +
-    annotate("text", x=0.5*max(x.fg$Var1), y=-Inf, label=mm.coords[1]) +
+    # annotate("label", x=0.5*max(x.bg$Var1), y=-Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=0) +
+    annotate("label", x=-Inf, y=-Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=0, hjust=0) +
     theme.obj
+
   plot.y <- ggplot() +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=y.bg, aes(x=Var1, y=Var2, fill=value), fill=y.bg$color) +
-    geom_raster(data=y.fg, aes(x=Var1, y=Var2, fill=value), fill=y.fg$color) +
-    annotate("text", x=0.5*max(y.fg$Var1), y=-Inf, label=mm.coords[2]) +
+    # annotate("label", x=0.5*max(y.bg$Var1), y=-Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=0) +
+    annotate("label", x=-Inf, y=-Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=0, hjust=0) +
     theme.obj
+
   plot.z <- ggplot() +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=z.bg, aes(x=Var1, y=Var2, fill=value), fill=z.bg$color) +
-    geom_raster(data=z.fg, aes(x=Var1, y=Var2, fill=value), fill=z.fg$color) +
-    annotate("text", x=0.5*max(z.fg$Var1), y=-Inf, label=mm.coords[3]) +
-    annotate("text", x=0.25*max(z.fg$Var1), y=Inf, label="R") +
-    annotate("text", x=0.75*max(z.fg$Var1), y=Inf, label="L") +
+    # annotate("label", x=0.5*max(z.bg$Var1), y=-Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=0) +
+    annotate("label", x=-Inf, y=-Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=0, hjust=0) +
+    annotate("label", x=0.25*max(z.bg$Var1), y=Inf, label="R", label.r=unit(0,"cm"), vjust=1) +
+    annotate("label", x=0.75*max(z.bg$Var1), y=Inf, label="L", label.r=unit(0,"cm"), vjust=1) +
     theme.obj
+
+# Prep Foreground --------------------------------------------------------------
+  nii.fg <- read.nii.volume(fg.nii, fg.vol)
+  mask.fg <- read.nii.volume(fg.mask, fg.mask.vol)
+
+  x.mask <- mask.fg[coords[1], , ]
+  x.mask[x.mask==0] <- NA
+  x.mask[!is.na(x.mask)] <- 1
+  x.fg <- melt(nii.fg[coords[1], , ] * x.mask)
+
+  y.mask <- mask.fg[ , coords[2], ]
+  y.mask[y.mask==0] <- NA
+  y.mask[!is.na(y.mask)] <- 1
+  y.fg <- melt(nii.fg[ , coords[2], ] * y.mask)
+
+  z.mask <- mask.fg[ , , coords[3]]
+  z.mask[z.mask==0] <- NA
+  z.mask[!is.na(z.mask)] <- 1
+  z.fg <- melt(nii.fg[ , , coords[3]] * z.mask)
+  all.fg.vals <- c(x.fg$value, y.fg$value, z.fg$value)
+
+  min.fg <- min(all.fg.vals, na.rm=T)
+  max.fg <- max(all.fg.vals, na.rm=T)
+
+  x.fg$scaled <- (x.fg$value - min.fg)/(max.fg - min.fg)
+  temp.color <- cbind(colorRamp(fg.color)(x.fg$scaled),NA)
+  temp.color[!is.na(x.fg$scaled),4] <- 255 * fg.alpha
+  temp.color[is.na(x.fg$scaled), ] <- 0
+  x.fg$color=rgb(red = temp.color[ ,1],
+                 green = temp.color[ ,2],
+                 blue = temp.color[ ,3],
+                 alpha = temp.color[ ,4],
+                 maxColorValue = 255)
+
+  y.fg$scaled <- (y.fg$value - min.fg)/(max.fg - min.fg)
+  temp.color <- cbind(colorRamp(fg.color)(y.fg$scaled),NA)
+  temp.color[!is.na(y.fg$scaled),4] <- 255 * fg.alpha
+  temp.color[is.na(y.fg$scaled), ] <- 0
+  y.fg$color=rgb(red = temp.color[ ,1],
+                 green = temp.color[ ,2],
+                 blue = temp.color[ ,3],
+                 alpha = temp.color[ ,4],
+                 maxColorValue = 255)
+
+  z.fg$scaled <- (z.fg$value - min.fg)/(max.fg - min.fg)
+  temp.color <- cbind(colorRamp(fg.color)(z.fg$scaled),NA)
+  temp.color[!is.na(z.fg$scaled),4] <- 255 * fg.alpha
+  temp.color[is.na(z.fg$scaled), ] <- 0
+  z.fg$color=rgb(red = temp.color[ ,1],
+                 green = temp.color[ ,2],
+                 blue = temp.color[ ,3],
+                 alpha = temp.color[ ,4],
+                 maxColorValue = 255)
+
+  ## Prep Foreground Legend
+  min.val <- min(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
+  max.val <- max(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
+
+  plot.x <- plot.x +
+    geom_raster(data=x.fg, aes(x=Var1, y=Var2, fill=value), fill=x.fg$color)
+  plot.y <- plot.y +
+    geom_raster(data=y.fg, aes(x=Var1, y=Var2, fill=value), fill=y.fg$color)
+  plot.z <- plot.z +
+    geom_raster(data=z.fg, aes(x=Var1, y=Var2, fill=value), fill=z.fg$color)
+
+  ## Prep Foreground Legend
+  fg.legend <- melt(matrix(seq(min.val, max.val, length.out = 100), ncol=10, nrow=100))
   plot.legend <- ggplot(fg.legend, aes(x=Var2, y=Var1, fill=value)) +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     scale_fill_gradientn(colors=fg.color) +
     geom_raster() +
-    annotate("text", x=-Inf, y=-Inf, label=round(min.val,2),
-             hjust=1, vjust=0,
-             color="#000000") +
-    annotate("text", x=-Inf, y=Inf, label=round(max.val,2),
-             hjust=1, vjust=1,
-             color="#000000") +
-    annotate("text", x=-Inf, y=0.5*max(fg.legend$Var1), label=fg.label,
-             vjust=-1, angle=90, color="#000000") +
-    theme.obj + theme(panel.background=element_rect(color="#000000"))
-  the.plot <- arrangeGrob(plot.x, plot.y, plot.z, plot.legend, nrow=1, widths=c(rel.dims, 0.1))
-  
+    annotate("label", x=-Inf, y=-Inf, label=round(min.val,2), hjust=1, vjust=0, label.r=unit(0,"cm")) +
+    annotate("label", x=-Inf, y=Inf, label=round(max.val,2), hjust=1, vjust=1, label.r=unit(0,"cm")) +
+    annotate("label", x=-Inf, y=0.5*max(fg.legend$Var1), label=fg.label, vjust=0, label.r=unit(0,"cm")) +
+    theme.obj
+
+# Prep ROI outlines ------------------------------------------------------------
+  n.roi <- length(roi.nii)
+  for (i in 1:n.roi) {
+    x.roi <- sort.outline(find.outline(read.nii.volume(roi.nii[i],1)[coords[1], , ]))
+    # x.roi <- x.roi[x.roi$value==1, ]
+    # x.ctr <- c(mean(x.roi$Var1), mean(x.roi$Var2))
+    # x.roi$t.pol <- atan2((x.roi$Var2 - x.ctr[2]),(x.roi$Var1 - x.ctr[1]))
+    # x.roi <- x.roi[order(x.roi$t.pol), ]
+
+    y.roi <- sort.outline(find.outline(read.nii.volume(roi.nii[i],1)[ , coords[2], ]))
+    # y.roi <- y.roi[y.roi$value==1, ]
+    # y.ctr <- c(mean(y.roi$Var1), mean(y.roi$Var2))
+    # y.roi$t.pol <- atan2((y.roi$Var2 - y.ctr[2]),(y.roi$Var1 - y.ctr[1]))
+    # y.roi <- y.roi[order(y.roi$t.pol), ]
+
+    z.roi <- sort.outline(find.outline(read.nii.volume(roi.nii[i],1)[ , , coords[3]]))
+    # z.roi <- z.roi[z.roi$value==1, ]
+    # z.ctr <- c(mean(z.roi$Var1), mean(z.roi$Var2))
+    # z.roi$t.pol <- atan2((z.roi$Var2 - z.ctr[2]),(z.roi$Var1 - z.ctr[1]))
+    # z.roi <- z.roi[order(z.roi$t.pol), ]
+
+    plot.x <- plot.x +
+      geom_path(data=x.roi, aes(x=row, y=col), color=roi.color[i])
+    plot.y <- plot.y +
+      geom_path(data=y.roi, aes(x=row, y=col), color=roi.color[i])
+    plot.z <- plot.z +
+      geom_path(data=z.roi, aes(x=row, y=col), color=roi.color[i])
+
+  }
+
+  the.plot <- arrangeGrob(plot.x, plot.y, plot.z, plot.legend,
+                          nrow=1, widths=c(rel.dims, 0.1))
+
   if (save.plot) {
     ggsave(filename = paste(save.dir, file.name, sep="/"),
            plot = the.plot,
