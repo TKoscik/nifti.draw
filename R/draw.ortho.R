@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-draw.ortho <- function(coords, 
-=======
 draw.ortho <- function(coords,
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
                        bg.nii,
                        bg.vol,
                        bg.mask=NULL,
@@ -18,46 +14,29 @@ draw.ortho <- function(coords,
                        fg.color=c("#440154", "#3C4984", "#26828B", "#49B570", "#B5D940",
                                   "#FDD626", "#FBB330", "#F38A47", "#E2665F", "#CC4678"),
                        fg.alpha=1,
-<<<<<<< HEAD
-                       save.plot=F, save.dir, file.name,
-                       img.format="png", img.w=17.6, img.unit="cm", img.dpi=600) {
-  
-=======
                        roi.nii,
                        roi.vol,
                        roi.color="#ff00ff",
                        save.plot=F, save.dir, file.name,
                        img.format="png", img.w=17.6, img.unit="cm", img.dpi=600) {
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   hdr <- nii.hdr(bg.nii)
   if (hdr$qform_code %in% c(1,-1)) {
     mm.coords <- world.to.mni(matrix(coords,ncol=3),
-      tform.xyz = matrix(c(hdr$pixdim[2],0,0,hdr$qoffset_x,
-                           0,hdr$pixdim[3],0,hdr$qoffset_y,
-                           0,0,hdr$pixdim[4],hdr$qoffset_z),
-                         ncol=4, byrow=T))
+                              tform.xyz = matrix(c(hdr$pixdim[2],0,0,hdr$qoffset_x,
+                                                   0,hdr$pixdim[3],0,hdr$qoffset_y,
+                                                   0,0,hdr$pixdim[4],hdr$qoffset_z),
+                                                 ncol=4, byrow=T))
   } else {
     mm.coords <- world.to.mni(matrix(coords,ncol=3),
                               nii.file = bg.nii)
   }
-<<<<<<< HEAD
-  
-  img.dims <- nii.dims(bg.nii)[1:3]
-  rel.dims <- img.dims / max(img.dims)
-  rel.dims <- rel.dims[c(2,1,1)]
-  
-  # Prep Background
-  nii.bg <- read.nii.volume(bg.nii, bg.vol)
-  mask.bg <- read.nii.volume(bg.mask, bg.mask.vol)
-  
-=======
 
   img.dims <- nii.dims(bg.nii)[1:3]
   rel.dims <- img.dims / max(img.dims)
   rel.dims <- rel.dims[c(2,1,1)]
 
-# Set plot theme ---------------------------------------------------------------
+  # Set plot theme ---------------------------------------------------------------
   theme.obj <- theme(plot.title = element_blank(),
                      legend.position="none",
                      legend.title = element_blank(),
@@ -67,7 +46,7 @@ draw.ortho <- function(coords,
                      axis.ticks=element_blank(),
                      plot.subtitle = element_text(size=10, margin = margin(0,0,0,0,"null")),
                      plot.background=element_blank(),
-                     panel.background=element_blank(),
+                     panel.background=element_rect(color="#000000"),
                      panel.grid=element_blank(),
                      panel.border=element_blank(),
                      panel.spacing.x=unit(c(0,0,0,0),"null"),
@@ -76,14 +55,13 @@ draw.ortho <- function(coords,
                      legend.margin=margin(0,0,0,0, "null"),
                      panel.spacing = margin(0,0,0,0, "null"))
 
-# Prep Background --------------------------------------------------------------
+  # Prep Background --------------------------------------------------------------
   nii.bg <- read.nii.volume(bg.nii, bg.vol)
   if (is.null(bg.mask)) {
     mask.bg <- array(1,dim=dim(nii.bg))
   } else {
     mask.bg <- read.nii.volume(bg.mask, bg.mask.vol)
   }
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   x.mask <- mask.bg[coords[1], , ]
   x.mask[x.mask==0] <- NA
   x.mask[!is.na(x.mask)] <- 1
@@ -99,11 +77,7 @@ draw.ortho <- function(coords,
   bg.all.vals <-c(x.bg$value, y.bg$value, z.bg$value)
   min.bg <- quantile(bg.all.vals, bg.range[1], na.rm=T)
   max.bg <- quantile(bg.all.vals, bg.range[2], na.rm=T)
-<<<<<<< HEAD
-  
-=======
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   x.bg$scaled <- ((x.bg$value - min.bg)/(max.bg - min.bg)) * (diff(bg.range))
   x.bg$scaled[x.bg$scaled < 0] <- 0
   x.bg$scaled[x.bg$scaled > 1] <- 1
@@ -114,13 +88,8 @@ draw.ortho <- function(coords,
                  green = temp.color[ ,2],
                  blue = temp.color[ ,3],
                  alpha = temp.color[ ,4],
-<<<<<<< HEAD
-                 maxColorValue = 255, )
-  
-=======
                  maxColorValue = 255)
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   y.bg$scaled <- (y.bg$value - min.bg)/(max.bg - min.bg)
   y.bg$scaled[y.bg$scaled < 0] <- 0
   y.bg$scaled[y.bg$scaled > 1] <- 1
@@ -131,13 +100,8 @@ draw.ortho <- function(coords,
                  green = temp.color[ ,2],
                  blue = temp.color[ ,3],
                  alpha = temp.color[ ,4],
-<<<<<<< HEAD
-                 maxColorValue = 255, )
-  
-=======
                  maxColorValue = 255)
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   z.bg$scaled <- (z.bg$value - min.bg)/(max.bg - min.bg)
   z.bg$scaled[z.bg$scaled < 0] <- 0
   z.bg$scaled[z.bg$scaled > 1] <- 1
@@ -148,23 +112,15 @@ draw.ortho <- function(coords,
                  green = temp.color[ ,2],
                  blue = temp.color[ ,3],
                  alpha = temp.color[ ,4],
-<<<<<<< HEAD
-                 maxColorValue = 255, )
-  
-  # Prep Foreground
-  nii.fg <- read.nii.volume(fg.nii, fg.vol)
-  mask.fg <- read.nii.volume(fg.mask, fg.mask.vol)
-  
-=======
                  maxColorValue = 255)
 
-# Plot background --------------------------------------------------------------
+  # Plot background --------------------------------------------------------------
   plot.x <- ggplot() +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=x.bg, aes(x=Var1, y=Var2, fill=value), fill=x.bg$color) +
     # annotate("label", x=0.5*max(x.bg$Var1), y=-Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=-Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=0, hjust=0) +
+    annotate("label", x=-Inf, y=Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=1, hjust=0) +
     theme.obj
 
   plot.y <- ggplot() +
@@ -172,7 +128,9 @@ draw.ortho <- function(coords,
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=y.bg, aes(x=Var1, y=Var2, fill=value), fill=y.bg$color) +
     # annotate("label", x=0.5*max(y.bg$Var1), y=-Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=-Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=0, hjust=0) +
+    annotate("label", x=-Inf, y=Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=1, hjust=0) +
+    annotate("label", x=-Inf, y=-Inf, label="R", label.r=unit(0,"cm"), vjust=0, hjust=0) +
+    annotate("label", x=Inf, y=-Inf, label="L", label.r=unit(0,"cm"), vjust=0, hjust=1) +
     theme.obj
 
   plot.z <- ggplot() +
@@ -180,47 +138,32 @@ draw.ortho <- function(coords,
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=z.bg, aes(x=Var1, y=Var2, fill=value), fill=z.bg$color) +
     # annotate("label", x=0.5*max(z.bg$Var1), y=-Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=-Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=0, hjust=0) +
-    annotate("label", x=0.25*max(z.bg$Var1), y=Inf, label="R", label.r=unit(0,"cm"), vjust=1) +
-    annotate("label", x=0.75*max(z.bg$Var1), y=Inf, label="L", label.r=unit(0,"cm"), vjust=1) +
+    annotate("label", x=-Inf, y=Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=1, hjust=0) +
     theme.obj
 
-# Prep Foreground --------------------------------------------------------------
+  # Prep Foreground --------------------------------------------------------------
   nii.fg <- read.nii.volume(fg.nii, fg.vol)
   mask.fg <- read.nii.volume(fg.mask, fg.mask.vol)
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   x.mask <- mask.fg[coords[1], , ]
   x.mask[x.mask==0] <- NA
   x.mask[!is.na(x.mask)] <- 1
   x.fg <- melt(nii.fg[coords[1], , ] * x.mask)
-<<<<<<< HEAD
-=======
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   y.mask <- mask.fg[ , coords[2], ]
   y.mask[y.mask==0] <- NA
   y.mask[!is.na(y.mask)] <- 1
   y.fg <- melt(nii.fg[ , coords[2], ] * y.mask)
-<<<<<<< HEAD
-=======
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   z.mask <- mask.fg[ , , coords[3]]
   z.mask[z.mask==0] <- NA
   z.mask[!is.na(z.mask)] <- 1
   z.fg <- melt(nii.fg[ , , coords[3]] * z.mask)
   all.fg.vals <- c(x.fg$value, y.fg$value, z.fg$value)
-<<<<<<< HEAD
-  min.fg <- min(all.fg.vals, na.rm=T)
-  max.fg <- max(all.fg.vals, na.rm=T)
-  
-=======
 
   min.fg <- min(all.fg.vals, na.rm=T)
   max.fg <- max(all.fg.vals, na.rm=T)
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   x.fg$scaled <- (x.fg$value - min.fg)/(max.fg - min.fg)
   temp.color <- cbind(colorRamp(fg.color)(x.fg$scaled),NA)
   temp.color[!is.na(x.fg$scaled),4] <- 255 * fg.alpha
@@ -229,13 +172,8 @@ draw.ortho <- function(coords,
                  green = temp.color[ ,2],
                  blue = temp.color[ ,3],
                  alpha = temp.color[ ,4],
-<<<<<<< HEAD
-                 maxColorValue = 255, )
-  
-=======
                  maxColorValue = 255)
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   y.fg$scaled <- (y.fg$value - min.fg)/(max.fg - min.fg)
   temp.color <- cbind(colorRamp(fg.color)(y.fg$scaled),NA)
   temp.color[!is.na(y.fg$scaled),4] <- 255 * fg.alpha
@@ -244,12 +182,8 @@ draw.ortho <- function(coords,
                  green = temp.color[ ,2],
                  blue = temp.color[ ,3],
                  alpha = temp.color[ ,4],
-<<<<<<< HEAD
-                 maxColorValue = 255, )
-=======
                  maxColorValue = 255)
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   z.fg$scaled <- (z.fg$value - min.fg)/(max.fg - min.fg)
   temp.color <- cbind(colorRamp(fg.color)(z.fg$scaled),NA)
   temp.color[!is.na(z.fg$scaled),4] <- 255 * fg.alpha
@@ -258,57 +192,6 @@ draw.ortho <- function(coords,
                  green = temp.color[ ,2],
                  blue = temp.color[ ,3],
                  alpha = temp.color[ ,4],
-<<<<<<< HEAD
-                 maxColorValue = 255, )
-  
-  ## Prep Foreground Legend
-  min.val <- min(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
-  max.val <- max(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
-  fg.legend <- melt(matrix(seq(min.val, max.val, length.out = 100), ncol=10, nrow=100))
-  
- ###
-  theme.obj <- theme(plot.title = element_blank(),
-                     legend.position="none",
-                     legend.title = element_blank(),
-                     legend.text = element_text(size=8, margin=margin(1,0,0,0,"null")),
-                     axis.title=element_blank(),
-                     axis.text=element_blank(),
-                     axis.ticks=element_blank(),
-                     plot.subtitle = element_text(size=10, margin = margin(0,0,0,0,"null")),
-                     plot.background=element_blank(),
-                     panel.background=element_blank(),
-                     panel.grid=element_blank(),
-                     panel.border=element_blank(),
-                     panel.spacing.x=unit(c(0,0,0,0),"null"),
-                     panel.spacing.y=unit(c(0,0,0,0),"null"),
-                     plot.margin=margin(0,0,0,0, "null"),
-                     legend.margin=margin(0,0,0,0, "null"),
-                     panel.spacing = margin(0,0,0,0, "null"))
-  
-  plot.x <- ggplot() +
-    theme_bw() +
-    coord_equal(expand=FALSE, clip="off") +
-    geom_raster(data=x.bg, aes(x=Var1, y=Var2, fill=value), fill=x.bg$color) +
-    geom_raster(data=x.fg, aes(x=Var1, y=Var2, fill=value), fill=x.fg$color) +
-    annotate("text", x=0.5*max(x.fg$Var1), y=-Inf, label=mm.coords[1]) +
-    theme.obj
-  plot.y <- ggplot() +
-    theme_bw() +
-    coord_equal(expand=FALSE, clip="off") +
-    geom_raster(data=y.bg, aes(x=Var1, y=Var2, fill=value), fill=y.bg$color) +
-    geom_raster(data=y.fg, aes(x=Var1, y=Var2, fill=value), fill=y.fg$color) +
-    annotate("text", x=0.5*max(y.fg$Var1), y=-Inf, label=mm.coords[2]) +
-    theme.obj
-  plot.z <- ggplot() +
-    theme_bw() +
-    coord_equal(expand=FALSE, clip="off") +
-    geom_raster(data=z.bg, aes(x=Var1, y=Var2, fill=value), fill=z.bg$color) +
-    geom_raster(data=z.fg, aes(x=Var1, y=Var2, fill=value), fill=z.fg$color) +
-    annotate("text", x=0.5*max(z.fg$Var1), y=-Inf, label=mm.coords[3]) +
-    annotate("text", x=0.25*max(z.fg$Var1), y=Inf, label="R") +
-    annotate("text", x=0.75*max(z.fg$Var1), y=Inf, label="L") +
-    theme.obj
-=======
                  maxColorValue = 255)
 
   ## Prep Foreground Legend
@@ -324,64 +207,60 @@ draw.ortho <- function(coords,
 
   ## Prep Foreground Legend
   fg.legend <- melt(matrix(seq(min.val, max.val, length.out = 100), ncol=10, nrow=100))
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
   plot.legend <- ggplot(fg.legend, aes(x=Var2, y=Var1, fill=value)) +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     scale_fill_gradientn(colors=fg.color) +
     geom_raster() +
-<<<<<<< HEAD
-    annotate("text", x=-Inf, y=-Inf, label=round(min.val,2),
-             hjust=1, vjust=0,
-             color="#000000") +
-    annotate("text", x=-Inf, y=Inf, label=round(max.val,2),
-             hjust=1, vjust=1,
-             color="#000000") +
-    annotate("text", x=-Inf, y=0.5*max(fg.legend$Var1), label=fg.label,
-             vjust=-1, angle=90, color="#000000") +
-    theme.obj + theme(panel.background=element_rect(color="#000000"))
-  the.plot <- arrangeGrob(plot.x, plot.y, plot.z, plot.legend, nrow=1, widths=c(rel.dims, 0.1))
-  
-=======
-    annotate("label", x=-Inf, y=-Inf, label=round(min.val,2), hjust=1, vjust=0, label.r=unit(0,"cm")) +
-    annotate("label", x=-Inf, y=Inf, label=round(max.val,2), hjust=1, vjust=1, label.r=unit(0,"cm")) +
-    annotate("label", x=-Inf, y=0.5*max(fg.legend$Var1), label=fg.label, vjust=0, label.r=unit(0,"cm")) +
+    # annotate("label", x=-Inf, y=-Inf, label=round(min.val,2), hjust=1, vjust=0, label.r=unit(0,"cm")) +
+    # annotate("label", x=-Inf, y=Inf, label=round(max.val,2), hjust=1, vjust=1, label.r=unit(0,"cm")) +
     theme.obj
 
-# Prep ROI outlines ------------------------------------------------------------
+  # Prep ROI outlines ------------------------------------------------------------
   n.roi <- length(roi.nii)
   for (i in 1:n.roi) {
-    x.roi <- sort.outline(find.outline(read.nii.volume(roi.nii[i],1)[coords[1], , ]))
-    # x.roi <- x.roi[x.roi$value==1, ]
-    # x.ctr <- c(mean(x.roi$Var1), mean(x.roi$Var2))
-    # x.roi$t.pol <- atan2((x.roi$Var2 - x.ctr[2]),(x.roi$Var1 - x.ctr[1]))
-    # x.roi <- x.roi[order(x.roi$t.pol), ]
-
-    y.roi <- sort.outline(find.outline(read.nii.volume(roi.nii[i],1)[ , coords[2], ]))
-    # y.roi <- y.roi[y.roi$value==1, ]
-    # y.ctr <- c(mean(y.roi$Var1), mean(y.roi$Var2))
-    # y.roi$t.pol <- atan2((y.roi$Var2 - y.ctr[2]),(y.roi$Var1 - y.ctr[1]))
-    # y.roi <- y.roi[order(y.roi$t.pol), ]
-
-    z.roi <- sort.outline(find.outline(read.nii.volume(roi.nii[i],1)[ , , coords[3]]))
-    # z.roi <- z.roi[z.roi$value==1, ]
-    # z.ctr <- c(mean(z.roi$Var1), mean(z.roi$Var2))
-    # z.roi$t.pol <- atan2((z.roi$Var2 - z.ctr[2]),(z.roi$Var1 - z.ctr[1]))
-    # z.roi <- z.roi[order(z.roi$t.pol), ]
-
+    x.idx <- melt(read.nii.volume(roi.nii[i],1)[coords[1], , ])
+    x.idx <- x.idx[x.idx$value > 0, ]
+    x.roi <- fortify(rasterToPolygons(rasterFromXYZ(x.idx), dissolve=T))
     plot.x <- plot.x +
-      geom_path(data=x.roi, aes(x=row, y=col), color=roi.color[i])
-    plot.y <- plot.y +
-      geom_path(data=y.roi, aes(x=row, y=col), color=roi.color[i])
-    plot.z <- plot.z +
-      geom_path(data=z.roi, aes(x=row, y=col), color=roi.color[i])
+      geom_path(data=x.roi, aes(x=long, y=lat, group=group),
+                size=0.25, color=roi.color[i])
 
+    y.idx <- melt(read.nii.volume(roi.nii[i],1)[ , coords[2], ])
+    y.idx <- y.idx[y.idx$value > 0, ]
+    y.roi <- fortify(rasterToPolygons(rasterFromXYZ(y.idx), dissolve=T))
+    plot.y <- plot.y +
+      geom_path(data=y.roi, aes(x=long, y=lat, group=group),
+                size=0.25,  color=roi.color[i])
+
+    z.idx <- melt(read.nii.volume(roi.nii[i],1)[ , , coords[3]])
+    z.idx <- z.idx[z.idx$value > 0, ]
+    z.roi <- fortify(rasterToPolygons(rasterFromXYZ(z.idx), dissolve=T))
+    plot.z <- plot.z +
+      geom_path(data=z.roi, aes(x=long, y=lat, group=group),
+                size=0.25,  color=roi.color[i])
   }
 
-  the.plot <- arrangeGrob(plot.x, plot.y, plot.z, plot.legend,
-                          nrow=1, widths=c(rel.dims, 0.1))
+  # the.plot <- arrangeGrob(arrangeGrob(plot.x, nrow=1, bottom=as.character(mm.coords[1]),
+  #                                     respect=TRUE, padding=unit(0,"lines"), clip=T),
+  #                         arrangeGrob(plot.y, nrow=1, bottom=as.character(mm.coords[2]),
+  #                                     respect=TRUE, padding=unit(0,"lines"), clip=T),
+  #                         arrangeGrob(plot.z, nrow=1, bottom=as.character(mm.coords[3]),
+  #                                     respect=TRUE, padding=unit(0,"lines"), clip=T),
+  #                         arrangeGrob(plot.legend, nrow=1, top="100000", bottom="0.001"),
+  #                         nrow=1, widths=c(rel.dims, 0.1),
+  #                         respect=TRUE, clip=T, padding=unit(0.5,"lines"),
+  #                         right=fg.label)
+  the.plot <- arrangeGrob(plot.x, plot.y, plot.z,
+                          rectGrob(gp=gpar(col="white")),
+                          arrangeGrob(plot.legend, nrow=1,
+                                      top=as.character(round(max.val,2)),
+                                      bottom=as.character(round(min.val,2))),
+                          nrow=1, widths=c(rel.dims,0.05, 0.1),
+                          respect=TRUE, clip=T, padding=unit(0.5,"lines"),
+                          right=fg.label)
 
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
+
   if (save.plot) {
     ggsave(filename = paste(save.dir, file.name, sep="/"),
            plot = the.plot,
@@ -392,8 +271,4 @@ draw.ortho <- function(coords,
            dpi = img.dpi)
   }
   return(the.plot)
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> eb77d16b96816d7bb065c8fbd747d2842d4e666f
