@@ -1,34 +1,15 @@
 draw.effect <- function(model,
                         effect.name,
                         axes=NULL, labels=NULL,
-                        plot.colors=get.color(),
+                        plot.colors=NULL,
                         save.dir, file.name,
                         img.format="png", img.w=10, img.unit="cm", img.dpi=600,
                         save.plot=TRUE, return.plot=FALSE) {
-  #-------------------------------------------------------------------------------------
-  # Copyright (C) 2017 Koscik, Timothy R. All Rights Reserved
-  #-------------------------------------------------------------------------------------
-
-  # Debug ---
-  # rm(list=ls())
-  # gc()
-  #
-  # axes=NULL
-  # labels=NULL
-  # plot.colors=get.color()
-  # save.plot=FALSE
-  # return.plot=TRUE
-  # effect.name="condA:condB"
-  #
-  # dat <- read.csv("C:/Users/tim.koscik/Downloads/fakeData.csv")
-  # dat$condA <- as.factor(dat$condA)
-  # dat$condB <- as.factor(dat$condB)
-  # dat$run <- rep(c(1,1,2,2),10)
-  # dat$response = sample(c(rep(0,20), rep(1,20)), size = 40, replace=F)
-  # model <- lmer(score ~ condA * condB + (1|subject/run), dat)
-  # model <- glmer(response ~ score * condA + (1|subject/run), dat, family=binomial, nAGQ=1, control=glmerControl(calc.derivs=FALSE, optimizer="bobyqa", optCtrl=list(maxfun=1000000)))
-  # ----
-
+  
+  if (is.null(plot.colors)) {
+    plot.colors <- colorRampPalette(c("#440154FF", "#3B528BFF", "#21908CFF", "#5DC863FF", "#FDE725FF", "#FDC328FF", "#F89441FF", "#E56B5DFF", "#CC4678FF"))
+  }
+  
   if (class(model) == "merModLmerTest") {
     tempf <<- model@frame
     dv <- unlist(strsplit(as.character(model@call), split = "[ ~]"))[2]
@@ -71,8 +52,7 @@ draw.effect <- function(model,
   }
 
   # Get effect levels if not supplied by user ----
-  # if (is.null(effect.levels)) {
-    effect.levels <- numeric(ef.num)
+  effect.levels <- numeric(ef.num)
     for (i in 1:ef.num) {
       if (i == 1) {
         if (var.type[i]=="factor") {
@@ -91,8 +71,7 @@ draw.effect <- function(model,
           }
         } else { stop("Cannot parse variable class") }
       }
-    }
-  # }
+  }
 
   ef.str <- switch(as.character(ef.num),
     `1`=sprintf("%s%s=%0.0f%s",
@@ -113,14 +92,8 @@ draw.effect <- function(model,
                ef.vars[2], effect.levels[2],
                ef.vars[3], effect.levels[3],
                ef.vars[4], effect.levels[4], ")))"))
-  # model <- update(model, data=tempf)
   ef <- eval(parse(text=ef.str))
 
-  # for (i in 1:ncol(ef)) {
-  #   if (is.numeric(ef[ ,i])) {
-  #     ef[ ,i] <- signif(ef[ ,i], digits=3)
-  #   }
-  # }
   if (length(axes) > 2) {
     if (var.type[axes[3]]=="numeric") {
       ef[axes[3]] <- signif(ef[axes[3]], digits=3)
@@ -136,7 +109,9 @@ draw.effect <- function(model,
     which.column <- which(colnames(ef)==axes[5])
     colnames(ef)[which.column] <- labels[5]
   }
-
+  
+  plot.colors <- plot.colors(length(unlist(unique(ef[axes[3]]))))
+                             
   if (var.type[1]=="factor") {
     plot.str <- switch(as.character(ef.num),
       `1`=sprintf("ggplot(ef, aes(x=%s, y=%s, ymin=lower, ymax=upper)) + theme_bw() + geom_pointrange(size=1, shape=18) + xlab('%s') + ylab('%s') + theme(axis.title=element_text(size=14), axis.text=element_text(size=12), axis.text.x=element_text(angle=90, hjust=0, vjust=0.5), legend.position='bottom', legend.title=element_text(size=14), legend.text=element_text(size=12))", axes[1], axes[2], labels[1], labels[2]),
