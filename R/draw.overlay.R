@@ -237,6 +237,9 @@ draw.overlay <- function(anat.nii,
     plotf$b <- plotf$b + img.over[[i]]$blue
     plotf$a <- plotf$a + img.over[[i]]$alpha
   }
+  plotf$r[plotf$r > 1] <- 1
+  plotf$g[plotf$g > 1] <- 1
+  plotf$b[plotf$b > 1] <- 1
   plotf$a[plotf$a > 1] <- 1
 
   if (!is.null(roi.nii)) {
