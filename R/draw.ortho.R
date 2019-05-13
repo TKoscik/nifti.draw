@@ -255,7 +255,13 @@ draw.ortho <- function(coords,
   #                         nrow=1, widths=c(rel.dims, 0.1),
   #                         respect=TRUE, clip=T, padding=unit(0.5,"lines"),
   #                         right=fg.label)
-  the.plot <- arrangeGrob(plot.x, plot.y, plot.z,
+  if (is.null(fg.nii)) {
+    the.plot <- arrangeGrob(plot.x, plot.y, plot.z,
+                          nrow=1, widths=c(rel.dims),
+                          respect=TRUE, clip=T, padding=unit(0.5,"lines"),
+                          right=fg.label)
+  } else {
+    the.plot <- arrangeGrob(plot.x, plot.y, plot.z,
                           rectGrob(gp=gpar(col="white")),
                           arrangeGrob(plot.legend, nrow=1,
                                       top=as.character(round(max.val,2)),
@@ -263,6 +269,8 @@ draw.ortho <- function(coords,
                           nrow=1, widths=c(rel.dims,0.05, 0.1),
                           respect=TRUE, clip=T, padding=unit(0.5,"lines"),
                           right=fg.label)
+  }
+    
   
   
   if (save.plot) {
