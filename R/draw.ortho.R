@@ -120,7 +120,7 @@ draw.ortho <- function(coords,
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=x.bg, aes(x=Var1, y=Var2, fill=value), fill=x.bg$color) +
     # annotate("label", x=0.5*max(x.bg$Var1), y=-Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=1, hjust=0) +
+    annotate("label", x=-Inf, y=Inf, label=round(mm.coords[1],digits=2), label.r=unit(0,"cm"), vjust=1, hjust=0) +
     theme.obj
   
   plot.y <- ggplot() +
@@ -128,7 +128,7 @@ draw.ortho <- function(coords,
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=y.bg, aes(x=Var1, y=Var2, fill=value), fill=y.bg$color) +
     # annotate("label", x=0.5*max(y.bg$Var1), y=-Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=1, hjust=0) +
+    annotate("label", x=-Inf, y=Inf, label=round(mm.coords[2],digits=2), label.r=unit(0,"cm"), vjust=1, hjust=0) +
     annotate("label", x=-Inf, y=-Inf, label="R", label.r=unit(0,"cm"), vjust=0, hjust=0) +
     annotate("label", x=Inf, y=-Inf, label="L", label.r=unit(0,"cm"), vjust=0, hjust=1) +
     theme.obj
@@ -138,7 +138,7 @@ draw.ortho <- function(coords,
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=z.bg, aes(x=Var1, y=Var2, fill=value), fill=z.bg$color) +
     # annotate("label", x=0.5*max(z.bg$Var1), y=-Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=1, hjust=0) +
+    annotate("label", x=-Inf, y=Inf, label=round(mm.coords[3],digits=2), label.r=unit(0,"cm"), vjust=1, hjust=0) +
     theme.obj
   
   # Prep Foreground --------------------------------------------------------------
