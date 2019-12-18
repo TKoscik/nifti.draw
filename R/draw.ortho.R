@@ -178,6 +178,9 @@ draw.ortho <- function(coords,
     temp.color <- cbind(colorRamp(fg.color)(x.fg$scaled),NA)
     temp.color[!is.na(x.fg$scaled),4] <- 255 * fg.alpha
     temp.color[is.na(x.fg$scaled), ] <- 0
+    temp.color[temp.color > 255] <- 255
+    temp.color[temp.color < 0] <- 0
+    temp.color[is.na(temp.color)] <- 0
     x.fg$color=rgb(red = temp.color[ ,1],
                    green = temp.color[ ,2],
                    blue = temp.color[ ,3],
@@ -188,6 +191,9 @@ draw.ortho <- function(coords,
     temp.color <- cbind(colorRamp(fg.color)(y.fg$scaled),NA)
     temp.color[!is.na(y.fg$scaled),4] <- 255 * fg.alpha
     temp.color[is.na(y.fg$scaled), ] <- 0
+    temp.color[temp.color > 255] <- 255
+    temp.color[temp.color < 0] <- 0
+    temp.color[is.na(temp.color)] <- 0
     y.fg$color=rgb(red = temp.color[ ,1],
                    green = temp.color[ ,2],
                    blue = temp.color[ ,3],
@@ -198,6 +204,9 @@ draw.ortho <- function(coords,
     temp.color <- cbind(colorRamp(fg.color)(z.fg$scaled),NA)
     temp.color[!is.na(z.fg$scaled),4] <- 255 * fg.alpha
     temp.color[is.na(z.fg$scaled), ] <- 0
+    temp.color[temp.color > 255] <- 255
+    temp.color[temp.color < 0] <- 0
+    temp.color[is.na(temp.color)] <- 0
     z.fg$color=rgb(red = temp.color[ ,1],
                    green = temp.color[ ,2],
                    blue = temp.color[ ,3],
@@ -205,8 +214,16 @@ draw.ortho <- function(coords,
                    maxColorValue = 255)
     
     ## Prep Foreground Legend
-    min.val <- min(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
-    max.val <- max(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
+    if (is.null(fg.minmax[1])) {
+      min.val <- min(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
+    } else {
+      min.val <- min.fg
+    }
+    if (is.null(fg.minmax[2])) {
+      max.val <- max(c(x.fg$value, y.fg$value, z.fg$value), na.rm=T)
+    } else {
+      max.val <- max.fg
+    }
     
     plot.x <- plot.x +
       geom_raster(data=x.fg, aes(x=Var1, y=Var2, fill=value), fill=x.fg$color)
@@ -266,20 +283,20 @@ draw.ortho <- function(coords,
   #                         right=fg.label)
   if (is.null(fg.nii)) {
     the.plot <- arrangeGrob(plot.x, plot.y, plot.z,
-                          nrow=1, widths=c(rel.dims),
-                          respect=TRUE, clip=T, padding=unit(0.5,"lines"),
-                          right=fg.label)
+                            nrow=1, widths=c(rel.dims),
+                            respect=TRUE, clip=T, padding=unit(0.5,"lines"),
+                            right=fg.label)
   } else {
     the.plot <- arrangeGrob(plot.x, plot.y, plot.z,
-                          rectGrob(gp=gpar(col="white")),
-                          arrangeGrob(plot.legend, nrow=1,
-                                      top=as.character(round(max.val,2)),
-                                      bottom=as.character(round(min.val,2))),
-                          nrow=1, widths=c(rel.dims,0.05, 0.1),
-                          respect=TRUE, clip=T, padding=unit(0.5,"lines"),
-                          right=fg.label)
+                            rectGrob(gp=gpar(col="white")),
+                            arrangeGrob(plot.legend, nrow=1,
+                                        top=as.character(round(max.val,2)),
+                                        bottom=as.character(round(min.val,2))),
+                            nrow=1, widths=c(rel.dims,0.05, 0.1),
+                            respect=TRUE, clip=T, padding=unit(0.5,"lines"),
+                            right=fg.label)
   }
-    
+  
   
   
   if (save.plot) {
