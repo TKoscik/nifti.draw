@@ -8,6 +8,7 @@ draw.ortho <- function(coords,
                        bg.alpha=1,
                        fg.nii=NULL,
                        fg.vol=NULL,
+                       fg.minmax=c(NULL,NULL),
                        fg.label="Intensity",
                        fg.mask=NULL,
                        fg.mask.vol=NULL,
@@ -162,8 +163,16 @@ draw.ortho <- function(coords,
     z.fg <- melt(nii.fg[ , , coords[3]] * z.mask)
     all.fg.vals <- c(x.fg$value, y.fg$value, z.fg$value)
     
-    min.fg <- min(all.fg.vals, na.rm=T)
-    max.fg <- max(all.fg.vals, na.rm=T)
+    if (is.null(fg.minmax[1])) {
+      min.fg <- min(all.fg.vals, na.rm=T)
+    } else {
+      min.fg <- fg.minmax[1]
+    }
+    if (is.null(fg.minmax[2])) {
+      max.fg <- min(all.fg.vals, na.rm=T)
+    } else {
+      max.fg <- fg.minmax[2]
+    }
     
     x.fg$scaled <- (x.fg$value - min.fg)/(max.fg - min.fg)
     temp.color <- cbind(colorRamp(fg.color)(x.fg$scaled),NA)
