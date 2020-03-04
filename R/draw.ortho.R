@@ -169,7 +169,7 @@ draw.ortho <- function(coords,
       min.fg <- fg.minmax[1]
     }
     if (is.null(fg.minmax[2])) {
-      max.fg <- min(all.fg.vals, na.rm=T)
+      max.fg <- max(all.fg.vals, na.rm=T)
     } else {
       max.fg <- fg.minmax[2]
     }
