@@ -120,26 +120,23 @@ draw.ortho <- function(coords,
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=x.bg, aes(x=Var1, y=Var2, fill=value), fill=x.bg$color) +
-    # annotate("label", x=0.5*max(x.bg$Var1), y=-Inf, label=mm.coords[1], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=Inf, label=round(mm.coords[1],digits=2), label.r=unit(0,"cm"), vjust=1, hjust=0) +
+    annotate("text", x=round(median(x.bg$Var1)), y=-Inf, label=round(mm.coords[1],digits=2), vjust=0, hjust=0.5) +
     theme.obj
   
   plot.y <- ggplot() +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=y.bg, aes(x=Var1, y=Var2, fill=value), fill=y.bg$color) +
-    # annotate("label", x=0.5*max(y.bg$Var1), y=-Inf, label=mm.coords[2], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=Inf, label=round(mm.coords[2],digits=2), label.r=unit(0,"cm"), vjust=1, hjust=0) +
-    annotate("label", x=-Inf, y=-Inf, label="R", label.r=unit(0,"cm"), vjust=0, hjust=0) +
-    annotate("label", x=Inf, y=-Inf, label="L", label.r=unit(0,"cm"), vjust=0, hjust=1) +
+    annotate("text", x=round(median(y.bg$Var1)), y=-Inf, label=round(mm.coords[2],digits=2), vjust=0, hjust=0.5) +
+    annotate("text", x=-Inf, y=Inf, label="R", vjust=0, hjust=0) +
+    annotate("text", x=Inf, y=Inf, label="L", vjust=0, hjust=1) +
     theme.obj
   
   plot.z <- ggplot() +
     theme_bw() +
     coord_equal(expand=FALSE, clip="off") +
     geom_raster(data=z.bg, aes(x=Var1, y=Var2, fill=value), fill=z.bg$color) +
-    # annotate("label", x=0.5*max(z.bg$Var1), y=-Inf, label=mm.coords[3], label.r=unit(0,"cm"), vjust=0) +
-    annotate("label", x=-Inf, y=Inf, label=round(mm.coords[3],digits=2), label.r=unit(0,"cm"), vjust=1, hjust=0) +
+    annotate("text", x=round(median(z.bg$Var1)), y=-Inf, label=round(mm.coords[3],digits=2), vjust=0, hjust=0.5) +
     theme.obj
   
   # Prep Foreground --------------------------------------------------------------
@@ -239,8 +236,6 @@ draw.ortho <- function(coords,
       coord_equal(expand=FALSE, clip="off") +
       scale_fill_gradientn(colors=fg.color) +
       geom_raster() +
-      # annotate("label", x=-Inf, y=-Inf, label=round(min.val,2), hjust=1, vjust=0, label.r=unit(0,"cm")) +
-      # annotate("label", x=-Inf, y=Inf, label=round(max.val,2), hjust=1, vjust=1, label.r=unit(0,"cm")) +
       theme.obj
   }
   
@@ -271,16 +266,6 @@ draw.ortho <- function(coords,
     }
   }
   
-  # the.plot <- arrangeGrob(arrangeGrob(plot.x, nrow=1, bottom=as.character(mm.coords[1]),
-  #                                     respect=TRUE, padding=unit(0,"lines"), clip=T),
-  #                         arrangeGrob(plot.y, nrow=1, bottom=as.character(mm.coords[2]),
-  #                                     respect=TRUE, padding=unit(0,"lines"), clip=T),
-  #                         arrangeGrob(plot.z, nrow=1, bottom=as.character(mm.coords[3]),
-  #                                     respect=TRUE, padding=unit(0,"lines"), clip=T),
-  #                         arrangeGrob(plot.legend, nrow=1, top="100000", bottom="0.001"),
-  #                         nrow=1, widths=c(rel.dims, 0.1),
-  #                         respect=TRUE, clip=T, padding=unit(0.5,"lines"),
-  #                         right=fg.label)
   if (is.null(fg.nii)) {
     the.plot <- arrangeGrob(plot.x, plot.y, plot.z,
                             nrow=1, widths=c(rel.dims),
@@ -296,9 +281,7 @@ draw.ortho <- function(coords,
                             respect=TRUE, clip=T, padding=unit(0.5,"lines"),
                             right=fg.label)
   }
-  
-  
-  
+
   if (save.plot) {
     ggsave(filename = paste(save.dir, file.name, sep="/"),
            plot = the.plot,
